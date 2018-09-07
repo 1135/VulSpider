@@ -321,7 +321,11 @@ def crawl_secwiki():
 
 
 def crawl_all_new():
+
     currentdicts_all_surenew = {}  # 确认为新资讯，则加入该待发送字典dict
+
+    global global_crawl_times
+    print "global_crawl_times" + str(global_crawl_times)
 
     # ---------------secwiki
     print '-' * 20 + 'secwiki new'
@@ -530,8 +534,8 @@ def crawl_all_new():
             send_mail_sohu(Recipient_list, '[*]' + v, v + '\n' + k)
 
 def send_mail_sohu(to_addrs, mail_Subject, mail_content, type='plain'):
-    _user = 'sender@sohu.com'
-    _pwd = 'pass'  # 密码
+    _user = 'sender@sohu.com'#邮箱账号
+    _pwd = 'pass'  #邮箱密码
 
     # 实测可群发
 
@@ -761,17 +765,26 @@ Recipient_list = ['123456@qq.com', 'aaaaa@163.com']
 if __name__ == '__main__':
     print 'start_time程序启动时间:' + str(start_time)
 
-
     global_crawl_times += 1  # 已经爬行次数
-
-    print '[start]-> global_crawl_times=' + str(global_crawl_times)
+    # print '[start]-> global_crawl_times=' + str(global_crawl_times)
     crawl_daily_all()
     crawl_all_new()
-    #
-    print '[over]->global_crawl_times=' + str(global_crawl_times)
-
 
     while True:
         schedule.run_pending()
         time.sleep(30)
         print("alive..")
+
+
+'''
+https://www.sec-wiki.com
+
+https://www.exploit-db.com/
+https://www.exploit-db.com/remote/
+https://www.exploit-db.com/webapps/
+https://www.exploit-db.com/local/
+
+http://www.cnvd.org.cn/flaw/list.htm
+https://www.exploitalert.com/search-results.html
+
+'''

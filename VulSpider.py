@@ -570,7 +570,7 @@ import datetime
 start_time = datetime.datetime.now()  # 程序启动时的时间
 
 # 今天发过了吗
-today_has_send_360cert = 1
+today_has_send_360cert = 0
 today_has_send_xuanwulab = 0
 
 # 发邮件失败次数

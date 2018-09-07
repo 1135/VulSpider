@@ -533,6 +533,9 @@ def crawl_all_new():
             # alltext += "%s\n%s\n\n" % (v, k)
             send_mail_sohu(Recipient_list, '[*]' + v, v + '\n' + k)
 
+
+    global_crawl_times += 1
+
 def send_mail_sohu(to_addrs, mail_Subject, mail_content, type='plain'):
     _user = 'sender@sohu.com'#邮箱账号
     _pwd = 'pass'  #邮箱密码

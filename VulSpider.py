@@ -531,7 +531,7 @@ def crawl_all_new():
 
 def send_mail_sohu(to_addrs, mail_Subject, mail_content, type='plain'):
     _user = 'sender@sohu.com'
-    _pwd = 'pass'  # 网易授权码而不是密码
+    _pwd = 'pass'  # 密码
 
     # 实测可群发
 

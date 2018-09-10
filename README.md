@@ -12,12 +12,15 @@
 收件人邮箱地址列表：将代码中`Recipient_list`的值改为收件人邮箱地址列表。
 
 ### Usage
-
-python2:
 ```
+#python2
 pip install schedule
 python VulSpider.py
 ```
+
+**注意**
+* 不建议使用网易邮箱发邮件(实测，发件邮箱发出的部分邮件会被系统退信，收件箱加白的机会都没有)
+* 不建议使用腾讯云部署(实测，无法与邮件服务器连接 如smtp.sohu.com等)
 
 ### "最新漏洞"——采集地址
 

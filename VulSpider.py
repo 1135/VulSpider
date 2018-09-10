@@ -643,6 +643,8 @@ def crawl_xuanwu(riqi):
             yue = "0" + riqi.split('-')[1]
         if len(riqi.split('-')[2]) == 1:
             ri = "0" + riqi.split('-')[2]
+        else:
+            ri = riqi.split('-')[2]
 
         url_xuanwutoday = 'https://xuanwulab.github.io/cn/secnews/{}/{}/{}/index.html'.format(nian, yue, ri)
         print "current url_xuanwutoday:" + url_xuanwutoday

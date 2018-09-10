@@ -634,6 +634,10 @@ def crawl_xuanwu(riqi):
     # 个位数 必须加零 如09 03
     try:
         print "crawl_xuanwulab riqi" + str(riqi)
+        nian = ""
+        yue = ""
+        ri = ""
+
         nian = riqi.split('-')[0]
         if len(riqi.split('-')[1]) == 1:
             yue = "0" + riqi.split('-')[1]

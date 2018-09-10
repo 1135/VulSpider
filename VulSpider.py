@@ -545,7 +545,7 @@ def send_mail_sohu(to_addrs, mail_Subject, mail_content, type='plain'):
     # 使用MIMEText构造符合smtp协议的header及body
     msg = MIMEText(mail_content, type, 'utf-8')
     msg["Subject"] = Header(mail_Subject, 'utf-8')
-    msg["From"] = Header("VulPush<" + _user + ">", 'utf-8')  # 发件人
+    msg["From"] = Header("VulPush <" + _user + ">",)  # 设置发件人名称为VulPush
     msg["To"] = ",".join(to_addrs)  # Header(",".join(to_addrs), 'utf-8')
 
     try:

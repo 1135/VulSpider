@@ -235,7 +235,7 @@ def crawl_xz():
         for one_url in result_list_xz:
             current_text = one_url[9:].strip('</a>').replace('\n', '').replace('">', '\t').replace('ref="',
                                                                                                    url_xz).replace(
-                "       ", "")
+                "       ", "").replace('" target="blank','')
             # print (current_text)
             # print current_text.split('\t')[0]  # url
             # print current_text.split('\t')[1]  # 标题

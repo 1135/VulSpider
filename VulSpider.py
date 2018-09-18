@@ -233,9 +233,8 @@ def crawl_xz():
         temp_dict = {}  # 本次获取的所有内容
 
         for one_url in result_list_xz:
-            current_text = one_url[9:].strip('</a>').replace('\n', '').replace('">', '\t').replace('ref="',
-                                                                                                   url_xz).replace(
-                "       ", "").replace('" target="blank','')
+            current_text = one_url[9:].strip('</a>').replace('\n', '').replace(
+                "       ", "").replace('">', '\t').replace('ref="',url_xz).replace('" target="_blank','')
             # print (current_text)
             # print current_text.split('\t')[0]  # url
             # print current_text.split('\t')[1]  # 标题

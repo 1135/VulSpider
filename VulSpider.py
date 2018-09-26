@@ -613,7 +613,7 @@ def crawl_360cert(riqi):
             item = match.group()[14:].replace('ock-title">', "------- ").replace('</span>', ' -------\n\n').replace(
                 '<span class="english">', '').replace('<div class="report-link"><a href="', '').replace('" t',
                                                                                                         "\n\n").replace(
-                '</div>', "").replace(" ", "")
+                '</div>', "").replace("                        ", "")
 
             print item
             alltext += item

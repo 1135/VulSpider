@@ -5,9 +5,9 @@
 ### 实现介绍
 
 * 需求背景：爬取若干固定单页面，提取关键信息，实际测试未触发反爬机制。
-* 爬虫选型：http获取response + regex正则匹配（无需headless爬虫）
+* 爬虫选型：http获取response + regex正则匹配（无需安装bs4 无需使用headless爬虫）
 * 网络环境：无需代理
-* 定时任务：schedule模块
+* 定时任务：schedule(本项唯一依赖的python模块)
 
 ### 主动通知途径
 
@@ -17,17 +17,21 @@
 
 ### 配置参数
 
-发件邮箱地址：将代码中`smtplib.SMTP`中的地址改为发件邮箱地址。
-发件邮箱账号：将代码中`_user=`的值改为发件邮箱账号。
-发件邮箱密码：将代码中`_pass=`的值改为发件邮箱密码。
+设置了两个发件箱以保证高可用性，所以需要配置两个发件箱的信息
+* 发件邮箱地址：将代码中`smtplib.SMTP`中的地址改为发件邮箱地址。
+* 发件邮箱账号：将代码中`_user=`的值改为发件邮箱账号。
+* 发件邮箱密码：将代码中`_pass=`的值改为发件邮箱密码。
 
-收件人邮箱地址列表：将代码中`Recipient_list`的值改为收件人邮箱地址列表。
+配置收件箱地址
+* 收件人邮箱地址列表：将代码中`Recipient_list`的值改为收件人邮箱地址列表。
 
 ### Usage
 ```
 #python2
 pip install schedule
-python VulSpider.py
+
+# 运行 可选择保存程序日志
+python VulSpider.py > Vul.log
 ```
 
 **注意**

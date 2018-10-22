@@ -18,6 +18,8 @@ import cookielib  # cookie管理
 
 import ssl  # 关闭https证书验证
 
+import sys
+
 ssl._create_default_https_context = ssl._create_unverified_context
 
 # gzip
@@ -32,15 +34,14 @@ headers_dict = {
     'User-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     'AlexaToolbar-ALX_NS_PH': 'AlexaToolbar/alx-4.0.3',
-}  # 定制 resquest HTTP头
+}
 
-data_urlencoded_str = """"""  # 作为post参数
-print data_urlencoded_str
-method = "GET"  # 只支持 POST 或 GET
-debugmode = False  # 为True 则输出调试: http请求响应具体内容
-timeout_sec = 60  # 请求超时时间 秒
+data_urlencoded_str = """"""
+method = "GET"
+debugmode = False
+timeout_sec = 60
 
-# crawl_all()函数执行的次数
+
 global_crawl_times = 0
 
 # 全局变量---"内存" 字典（启动时候为空，启动后5分钟对比一次，有新的则加入对应字典）
@@ -55,37 +56,22 @@ dict_expdb_webapps = {}
 
 # -------------------------------------
 
-
-
 def SENT_resquest(url, headers_dict, timeout_sec, data_urlencoded_str, method, debugmode):
-    # install_cookie_handler------------------
+
     cookiejar = cookielib.CookieJar()
 
     if (debugmode == True):
-        # install_debug_handler
         opener = urllib2.build_opener(
-            urllib2.HTTPHandler(debuglevel=1),  # 调试：打印输出 HTTP和HTTPS 发包收包信息
+            urllib2.HTTPHandler(debuglevel=1),
             urllib2.HTTPSHandler(debuglevel=1),
-
-            # urllib2.HTTPCookieProcessor(cookiejar),  # 使用CookieJar 自动cookie管理  进行初始化
-            # urllib2.HTTPSCookieProcessor(cookiejar), #HTTpS
-
-            # urllib2.ProxyHandler({'http': '127.0.0.1:8080', 'https': '127.0.0.1:8080'}),  # 开启代理！
-
         )
     else:
         opener = urllib2.build_opener(
-            # urllib2.HTTPCookieProcessor(cookiejar),
-            # urllib2.ProxyHandler({'http': '127.0.0.1:8080', 'https': '127.0.0.1:8080'}),  # 开启代理！
-
         )
 
-    # 在这里指定http头 则每个请求都会自动带上   比如User-agent
-    # opener.addheaders = [('User-agent', 'Mozilla/5.0  Gecko/20100101 Firefox/44.0')]
 
-    urllib2.install_opener(opener)  # 将某些opener设置为系统默认。只能用一次。如果第二次传入opener，就使用第二次传入的opener。而不能新增opener
+    urllib2.install_opener(opener)
 
-    # 发起请求----------------------
     try:
 
         if method == 'POST':  # post请求
@@ -110,13 +96,12 @@ def SENT_resquest(url, headers_dict, timeout_sec, data_urlencoded_str, method, d
         print e.reason
         # print e.read()
         # 异常时候也返回 响应包长度
-        print '--------------------------------'
+        print '------------------------------'
 
 
     else:
         print(response_.read())  # #如果URl 请求成功  会输出 内容 如<!DOCTYP等
         response_.close()
-
 
 def crawl_alert():
     # ---------------
@@ -138,42 +123,23 @@ def crawl_alert():
         # print result_list_alert
         for one_url in result_list_alert:
             current_text = one_url[6:].strip('</a>').replace('">', '\t')
-            # print (current_text)
-            # print current_text.split('\t')[0]  # url
-            # print current_text.split('\t')[1]  # 标题
 
             temp_dict[current_text.split('\t')[0]] = current_text.split('\t')[1]
         return temp_dict
-        # #如果 dict_alert 没有该新k-v 则在temp里增加该新k-v （同时更新dict_alert供下次比较）
-        # if dict_alert.has_key(current_text.split('\t')[0]) == False:
-        #     dict_alert[current_text.split('\t')[0]] = current_text.split('\t')[1]
-        # else:
-        #     temp_dict[current_text.split('\t')[0]] = current_text.split('\t')[1]
-        #     dict_alert[current_text.split('\t')[0]] = current_text.split('\t')[1]
 
 
     except Exception as e:
         print "error!!!" + str(e)
         return ""
-        
 
 def crawl_expdb(url_expdb):
-    # ---------------
-    # https://www.exploit-db.com/remote/
-    # <a.+data-toggle="tooltip" data-placement="top".+>
-
     try:
 
         resp_expdb = SENT_resquest(url_expdb, headers_dict, timeout_sec, data_urlencoded_str,
                                    method, debugmode)
-
-        # print resp_expdb.headers['content-length']
-
-
         content_encode = resp_expdb.info().get('Content-Encoding')
 
         resp_text = resp_expdb.read()
-        # print '原始：'+ resp_text #可能为gzip压缩的 也可能直接明文
 
         if content_encode == 'gzip':
             resp_text = zlib.decompress(resp_text, zlib.MAX_WBITS | 16)
@@ -186,35 +152,26 @@ def crawl_expdb(url_expdb):
         else:
             print '[*无压缩]\n'
 
-            # print resp_text  # 正确Body
-
         regex_expdb = r"""<a.+data-toggle="tooltip" data-placement="top".+>"""
         regex_obj_url_pre = re.compile(regex_expdb)
 
         result_list_expdb = regex_obj_url_pre.findall(resp_text)
 
-        # print result_list_expdb
-
-        # print result_list_expdb
-        temp_dict = {}  # 本次获取的所有内容
+        temp_dict = {}
         for one_url in result_list_expdb:
             current_text = (
                 one_url[9:].strip('">').replace('" data-toggle="tooltip" data-placement="top" title="', "\t"))
 
-            # print (current_text)
-            # print current_text.split('\t')[0]  # url
-            # print current_text.split('\t')[1]  # 标题
             temp_dict[current_text.split('\t')[0]] = current_text.split('\t')[1]
-        print '[*' + str(temp_dict)
         return temp_dict
 
     except Exception as e:
         print "error!!!" + str(e)
+        print e.message
         return ""
 
+
 def crawl_xz():
-    # ---------------
-    # https://xz.aliyun.com/
 
     try:
         url_xz = 'https://xz.aliyun.com'
@@ -233,8 +190,7 @@ def crawl_xz():
         temp_dict = {}  # 本次获取的所有内容
 
         for one_url in result_list_xz:
-            current_text = one_url[9:].strip('</a>').replace('\n', '').replace(
-                "       ", "").replace('">', '\t').replace('ref="',url_xz).replace('" target="_blank','')
+            current_text = one_url[9:].strip('</a>').replace('\n', '').replace('">', '\t').replace('ref="',url_xz).replace('" target="_blank','').replace("        ", "")
             # print (current_text)
             # print current_text.split('\t')[0]  # url
             # print current_text.split('\t')[1]  # 标题
@@ -263,7 +219,7 @@ def crawl_cnvd():
         regex_obj_url_pre = re.compile(regex_cnvd)
         result_list_cnvd = regex_obj_url_pre.findall(response_cnvd)
 
-        print result_list_cnvd
+        #print result_list_cnvd
 
         temp_dict = {}
         for one_url in result_list_cnvd:
@@ -285,30 +241,22 @@ def crawl_cnvd():
 def crawl_secwiki():
     try:
         url_secwiki = 'https://www.sec-wiki.com'
-
         resp = SENT_resquest(url_secwiki, headers_dict, timeout_sec, data_urlencoded_str, method, debugmode)
-
-        # print resp.headers['content-length']
-
-        # 返回/打印 response 内容
         response_secwiki = resp.read().decode("utf8")
-        # print response_secwiki
-
 
         regex_secwiki = r"""news' rel='\d{5}'\shref='http[\w:\/\/.].+?</a>"""
-        # regex_secwiki = r"""\d+' href='[\w:\/\/.-]+'>.+<\/a>"""
-        regex_obj_url_pre = re.compile(regex_secwiki)  # 正则表达式里的 . 本来无法匹配换行 加上这个时,  就可以匹配所有字符【包括换行 tab等！！】
+        regex_obj_url_pre = re.compile(regex_secwiki)
         result_list = regex_obj_url_pre.findall(response_secwiki)
 
-        print result_list
+        #print result_list
 
         temp_dict = {}
         for one_url in result_list:
             current_text = one_url[24:].strip('</a>').replace("'>", "\t")  # .replace(" ", "")
 
             # print (current_text)
-            print current_text.split('\t')[0]  # url
-            print current_text.split('\t')[1]  # 标题
+            #print current_text.split('\t')[0]  # url
+            #print current_text.split('\t')[1]  # 标题
 
             temp_dict[current_text.split('\t')[0]] = current_text.split('\t')[1]
         return temp_dict
@@ -320,6 +268,8 @@ def crawl_secwiki():
 
 
 def crawl_all_new():
+
+    crawl_daily_all() #daily
 
     currentdicts_all_surenew = {}  # 确认为新资讯，则加入该待发送字典dict
 
@@ -334,10 +284,12 @@ def crawl_all_new():
     global dict_secwiki  # 全局变量
 
     if current_dict == "":
+        print "函数crawl_secwiki返回空字符串"
         pass
     elif global_crawl_times == 1:
-        dict_secwiki = current_dict  # 初次爬取 将alert中获取的内容 赋值给 全局字典dict_alert
-    else:  # 第二次及以后爬取时 进行判断逻辑
+        dict_secwiki = current_dict
+        print "首次爬取."
+    else:
         if dict_secwiki == current_dict:  # 前后2次爬取 内容无变化则不操作 tempdict_surenew_alert仍为空
             pass
         else:  # 前后2次爬取 内容有变化
@@ -347,11 +299,11 @@ def crawl_all_new():
                 else:  # 如果 全局字典dict_alert 不含有 本次获得的某个Key 则为新key
                     currentdicts_all_surenew[key] = current_dict[key]  # 确认为新key
                     dict_secwiki = current_dict.copy()
+                    print str(key)
+                    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
+                    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
 
-    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
-    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
-    print "全局dict_secwiki字典长度：" + str(len(dict_secwiki))
-    print "全局dict_secwiki字典内容：" + str(dict_secwiki)
+    print '-' * 20 + '\n'
 
     # ---------------exploitalert.com
     print '-' * 20 + 'exploitalert.com new'
@@ -364,6 +316,7 @@ def crawl_all_new():
         pass
     elif global_crawl_times == 1:
         dict_alert = current_dict.copy()  # 初次爬取 将alert中获取的内容 赋值给 全局字典dict_alert
+        print "首次爬取."
     else:  # 第二次及以后爬取时 进行判断逻辑
         if dict_alert == current_dict:  # 前后2次爬取 内容无变化则不操作 tempdict_surenew_alert仍为空
             pass
@@ -374,11 +327,11 @@ def crawl_all_new():
                 else:  # 如果 全局字典dict_alert 不含有 本次获得的某个Key 则为新key
                     currentdicts_all_surenew[key] = current_dict[key]  # 确认为新key
                     dict_alert = current_dict.copy()
+                    print str(key)
+                    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
+                    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
 
-    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
-    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
-    print "全局dict_alert字典长度：" + str(len(dict_alert))
-    print "全局dict_alert字典内容：" + str(dict_alert)
+    print '-' * 20 + '\n'
 
     # ---------------cnvd
 
@@ -388,9 +341,11 @@ def crawl_all_new():
     global dict_cnvd_global  # cnvd中的新的
 
     if current_dict == "":
+        print "current is null"
         pass
     elif global_crawl_times == 1:
         dict_cnvd_global = current_dict  # 初次爬取 将alert中获取的内容 赋值给 全局字典dict_alert
+        print "首次爬取."
     else:  # 第二次及以后爬取时 进行判断逻辑
         if dict_cnvd_global == current_dict:  # 前后2次爬取 内容无变化则不操作 tempdict_surenew_alert仍为空
             pass
@@ -401,12 +356,12 @@ def crawl_all_new():
                 else:  # 如果 全局字典dict_alert 不含有 本次获得的某个Key 则为新key
                     currentdicts_all_surenew[key] = current_dict[key]  # 确认为新key
                     dict_cnvd_global = current_dict.copy()
+                    print str(key)
+                    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
+                    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
 
-    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
-    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
-    print "全局cnvd字典长度：" + str(len(dict_cnvd_global))
-    print "全局cnvd字典内容：" + str(dict_cnvd_global)
 
+    print '-' * 20 + '\n'
     # ---------------xz.aliyun.com
     print '-' * 20 + 'xz.aliyun.com new'
 
@@ -417,6 +372,7 @@ def crawl_all_new():
         pass
     elif global_crawl_times == 1:
         dict_xz_global = current_dict.copy()  # 初次爬取 将alert中获取的内容 赋值给 全局字典dict_alert
+        print "首次爬取."
     else:  # 第二次及以后爬取时 进行判断逻辑
         if dict_xz_global == current_dict:  # 前后2次爬取 内容无变化则不操作 tempdict_surenew_alert仍为空
             pass
@@ -427,11 +383,11 @@ def crawl_all_new():
                 else:  # 如果 全局字典dict_alert 不含有 本次获得的某个Key 则为新key
                     currentdicts_all_surenew[key] = current_dict[key]  # 确认为新key
                     dict_xz_global = current_dict
+                    print str(key)
+                    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
+                    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
 
-    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
-    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
-    print "全局xz字典长度：" + str(len(dict_xz_global))
-    print "全局xz字典内容：" + str(dict_xz_global)
+    print '-' * 20 + '\n'
 
     # ---------------expdb-remote
 
@@ -445,6 +401,7 @@ def crawl_all_new():
         pass
     elif global_crawl_times == 1:
         dict_expdb_remote = current_dict  # 初次爬取 将alert中获取的内容 赋值给 全局字典dict_alert
+        print "首次爬取."
     else:  # 第二次及以后爬取时 进行判断逻辑
         if dict_expdb_remote == current_dict:  # 前后2次爬取 内容无变化则不操作 tempdict_surenew_alert仍为空
             pass
@@ -455,11 +412,11 @@ def crawl_all_new():
                 else:  # 如果 全局字典dict_alert 不含有 本次获得的某个Key 则为新key
                     currentdicts_all_surenew[key] = current_dict[key]  # 确认为新key
                     dict_expdb_remote = current_dict.copy()
+                    print str(key)
+                    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
+                    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
 
-    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
-    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
-    print "全局ed-remote字典长度：" + str(len(dict_expdb_remote))
-    print "全局ed-remote字典内容：" + str(dict_expdb_remote)
+    print '-' * 20 + '\n'
 
     # --------------------expdb-webapps
 
@@ -473,6 +430,7 @@ def crawl_all_new():
         pass
     elif global_crawl_times == 1:
         dict_expdb_webapps = current_dict  # 初次爬取 将alert中获取的内容 赋值给 全局字典dict_alert
+        print "首次爬取."
     else:  # 第二次及以后爬取时 进行判断逻辑
         if dict_expdb_webapps == current_dict:  # 前后2次爬取 内容无变化则不操作 tempdict_surenew_alert仍为空
             pass
@@ -483,11 +441,11 @@ def crawl_all_new():
                 else:  # 如果 全局字典dict_alert 不含有 本次获得的某个Key 则为新key
                     currentdicts_all_surenew[key] = current_dict[key]  # 确认为新key
                     dict_expdb_webapps = current_dict.copy()
+                    print str(key)
+                    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
+                    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
 
-    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
-    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
-    print "全局ed_webapps字典长度：" + str(len(dict_expdb_webapps))
-    print "全局ed_webapps字典内容：" + str(dict_expdb_webapps)
+    print '-' * 20 + '\n'
 
     # --------------------expdb-local
 
@@ -501,6 +459,7 @@ def crawl_all_new():
         pass
     elif global_crawl_times == 1:
         dict_expdb_local = current_dict  # 初次爬取 将alert中获取的内容 赋值给 全局字典dict_alert
+        print "首次爬取."
     else:  # 第二次及以后爬取时 进行判断逻辑
         if dict_expdb_local == current_dict:  # 前后2次爬取 内容无变化则不操作 tempdict_surenew_alert仍为空
             pass
@@ -511,40 +470,110 @@ def crawl_all_new():
                 else:  # 如果 全局字典dict_alert 不含有 本次获得的某个Key 则为新key
                     currentdicts_all_surenew[key] = current_dict[key]  # 确认为新key
                     dict_expdb_local = current_dict.copy()
+                    print str(key)
+                    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
+                    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
 
-    print "currentdicts_all_surenew字典长度：" + str(len(currentdicts_all_surenew))
-    print "currentdicts_all_surenew字典内容：" + str(currentdicts_all_surenew)
-    print "全局ed_local字典长度：" + str(len(dict_expdb_local))
-    print "全局ed_local字典内容：" + str(dict_expdb_local)
 
-    # crawl_expdb('https://www.exploit-db.com/local/')
+    print '-' * 20 + '\n'
+
+    # -------------------------------
+    print '[爬取次数]global_crawl_times=' + str(global_crawl_times)
+    print '-' * 20 + '\n'
 
 
     # -------------------------------发邮件
     if global_crawl_times != 1 and currentdicts_all_surenew != {}:
         print '[mail]global_crawl_times=' + str(global_crawl_times)
-
         print '发送邮件：'
         keyValList = currentdicts_all_surenew.items()  # 获取所有新增的 Key-Value 变量类型:元祖
 
         alltext = ''
         for k, v in keyValList:  # 遍历
-            # alltext += "%s\n%s\n\n" % (v, k)
-            send_mail_sohu(Recipient_list, '[*]' + v, v + '\n' + k)
+            send_mail_A(Recipient_list, '[*]' + v, v + '\n' + k)
+            # 每个漏洞发一条
 
-
+    #爬行次数+1
     global_crawl_times += 1
 
-def send_mail_sohu(to_addrs, mail_Subject, mail_content, type='plain'):
-    _user = 'sender@sohu.com'#邮箱账号
-    _pwd = 'pass'  #邮箱密码
+    sys.stdout.flush()  # 实时输出日志 适用于 python x.py > x.log的实时输出
+
+
+def send_mail_163(to_addrs, mail_Subject, mail_content, type='plain'):
+    # 登录配置
+    _user = '15235756964@163.com'
+    _pwd = 'asdqwe1234'  # 网易授权码而不是密码
 
     # 实测可群发
+    # 使用MIMEText构造符合smtp协议的header及body
+    msg = MIMEText(mail_content, type, 'utf-8')
+    msg["Subject"] = Header(mail_Subject, 'utf-8')
+    msg["From"] = Header(_user, 'utf-8')  # 发件人
+    msg["To"] = ",".join(to_addrs)  # Header(",".join(to_addrs), 'utf-8')
+
+    # -----打印时间
+    current_now = datetime.datetime.now()
+    print str(current_now)
+
+    try:
+        s = smtplib.SMTP("smtp.163.com", timeout=30)  # 连接smtp邮件服务器,端口默认是25
+        s.login(_user, _pwd)  # 登陆服务器
+        s.sendmail(_user, to_addrs, msg.as_string())  # 发送邮件
+
+    except Exception as e:
+        global mail_error_times
+        mail_error_times += 1
+
+        print "[发邮件异常]mail error!!!" + str(e)
+        print "[发邮件异常]第%s次" % str(mail_error_times)
+        if mail_error_times < 10:
+            send_mail_163(to_addrs, mail_Subject, mail_content, type='plain')
+        else:
+            print "[发邮件异常]10次"
+            current_now = datetime.datetime.now()
+            print str(current_now)
+            pass
+
+# qq邮箱
+def send_mail_A(to_addrs, mail_Subject, mail_content, type='plain'):
+    _user = 'user@qq.com'
+    _pwd = 'pass'
 
     # 使用MIMEText构造符合smtp协议的header及body
     msg = MIMEText(mail_content, type, 'utf-8')
     msg["Subject"] = Header(mail_Subject, 'utf-8')
-    msg["From"] = Header("VulPush <" + _user + ">",)  # 设置发件人名称为VulPush
+    msg["From"] = Header("VulPush <" + _user + ">", )  # 'utf-8')  # 发件人
+    msg["To"] = ",".join(to_addrs)  # Header(",".join(to_addrs), 'utf-8')
+
+    try:
+        s = smtplib.SMTP("smtp.qq.com", timeout=30)  # 连接smtp邮件服务器,端口默认是25
+        s.login(_user, _pwd)  # 登陆服务器
+        s.sendmail(_user, to_addrs, msg.as_string())  # 发送邮件
+    except Exception as e:
+        global mail_error_times
+        mail_error_times += 1
+        print "[发邮件异常]fail - send_mail_A " + str(e)
+        print "[发邮件异常]第%s次" % str(mail_error_times)
+        if mail_error_times < 100:  # 调用另一个发邮件函数
+            current_now = datetime.datetime.now()
+            print str(current_now)
+            # 二者互相调用  此处调用send_mail_B
+            print "[发邮件]换发件箱 - send_mail_B"
+            send_mail_B(to_addrs, mail_Subject, mail_content, type='plain')
+        else:
+            print "[发邮件异常]发件箱A 发件箱B 共失败超过100次!!! 可能是网络问题" + str(e)
+            print "失败次数清零 持续运行"
+            mail_error_times = 0
+
+#sohu
+def send_mail_B(to_addrs, mail_Subject, mail_content, type='plain'):
+    _user = 'user@sohu.com'
+    _pwd = 'pass.'
+
+    # 使用MIMEText构造符合smtp协议的header及body
+    msg = MIMEText(mail_content, type, 'utf-8')
+    msg["Subject"] = Header(mail_Subject, 'utf-8')
+    msg["From"] = Header("VulPush <" + _user + ">", )  # 'utf-8')  # 发件人
     msg["To"] = ",".join(to_addrs)  # Header(",".join(to_addrs), 'utf-8')
 
     try:
@@ -555,22 +584,24 @@ def send_mail_sohu(to_addrs, mail_Subject, mail_content, type='plain'):
         # 如果异常 重发达10次仍异常则退出程序
         global mail_error_times
         mail_error_times += 1
-        print "[发邮件异常]mail error!!!" + str(e)
+        print "[发邮件异常]fail - send_mail_A " + str(e)
         print "[发邮件异常]第%s次" % str(mail_error_times)
-        if mail_error_times < 10:  # 递归调用
-            send_mail_sohu(to_addrs, mail_Subject, mail_content, type='plain')
+
+        if mail_error_times < 100:  # 调用另一个发邮件函数
+            # 打印当前时间
+            current_now = datetime.datetime.now()
+            print str(current_now)
+            # 二者互相调用  此处调用send_mail_A
+            print "[发邮件]换发件箱 - send_mail_A"
+            send_mail_A(to_addrs, mail_Subject, mail_content, type='plain')
         else:
-            print "[发邮件异常]10次重连失败，程序退出!!!" + str(e)
-            exit(0)
-
-            # finally:
-            #     s.close()
-
+            print "[发邮件异常]发件箱A 发件箱B 共失败超过100次!!! 可能是网络问题" + str(e)
+            print "失败次数清零 持续运行"
+            mail_error_times = 0
 
 
 # 爬daily----------------------------------V
 # 全局变量
-
 import datetime
 
 start_time = datetime.datetime.now()  # 程序启动时的时间
@@ -587,28 +618,41 @@ def crawl_360cert(riqi):
     # https://cert.360.cn/daily?date=
     try:
         print "crawl_360cert riqi" + str(riqi)
-        url_cnvd = 'https://cert.360.cn/daily?date=' + str(riqi)
-        print "current url" + url_cnvd
-        resp_cnvd = SENT_resquest(url_cnvd, headers_dict, timeout_sec, data_urlencoded_str,
+        url_today = 'https://cert.360.cn/daily?date=' + str(riqi)
+        print "current url" + url_today
+
+        resp_today = SENT_resquest(url_today, headers_dict, timeout_sec, data_urlencoded_str,
                                   method, debugmode)
 
-        response_cnvd = resp_cnvd.read().decode("utf8")
 
-        print "360cert len response:" + str(len(response_cnvd))
-        if len(response_cnvd) == 2712:
+        content_encode = resp_today.info().get('Content-Encoding')
+        resp_text = resp_today.read()
+
+        if content_encode == 'gzip':
+            resp_text = zlib.decompress(resp_text, zlib.MAX_WBITS | 16)
+            print '[*解码gzip]\n'
+        elif content_encode == 'deflate':
+            resp_text = zlib.decompress(resp_text, -zlib.MAX_WBITS)
+            print '[*解码deflate]\n'
+        else:
+            print '[*无压缩]\n'
+
+        print "Response:\n"
+        print resp_text  # 打印response的html内容
+
+        print "360cert len response:" + str(len(resp_text))
+        if len(resp_text) < 2800:#通常2712
             return "0"  # 单日信息还未出来
-        if ('Report' not in response_cnvd) and ('Security' not in response_cnvd):
+        if ('Information' not in resp_text) and ('Vulnerability' not in resp_text):
             return "0"
-
-        # 过滤掉js 即可避免进入垃圾箱
 
         # 直接匹配
         regex = r"""(report-title">.+\n.+" t)|(<div class="block-title">.+</span>)"""
-        matches = re.finditer(regex, response_cnvd)
+        matches = re.finditer(regex, resp_text)
 
         alltext = ""
         for matchNum, match in enumerate(matches):
-            matchNum = matchNum + 1
+            #matchNum = matchNum + 1
 
             item = match.group()[14:].replace('ock-title">', "------- ").replace('</span>', ' -------\n\n').replace(
                 '<span class="english">', '').replace('<div class="report-link"><a href="', '').replace('" t',
@@ -618,8 +662,8 @@ def crawl_360cert(riqi):
             print item
             alltext += item
 
-            # for groupNum in range(0, len(match.groups())):
-            #     groupNum = groupNum + 1
+        # 增加url
+        alltext = url_today + "\n\n" + alltext
 
         return alltext
 
@@ -630,7 +674,6 @@ def crawl_360cert(riqi):
 
 def crawl_xuanwu(riqi):
     # https://xuanwulab.github.io/cn/secnews/2018/09/03/index.html
-    # 个位数 必须加零 如09 03
     try:
         print "crawl_xuanwulab riqi" + str(riqi)
         nian = ""
@@ -643,10 +686,12 @@ def crawl_xuanwu(riqi):
         if len(riqi.split('-')[2]) == 1:
             ri = "0" + riqi.split('-')[2]
         else:
+            yue =riqi.split('-')[1]
             ri = riqi.split('-')[2]
 
         url_xuanwutoday = 'https://xuanwulab.github.io/cn/secnews/{}/{}/{}/index.html'.format(nian, yue, ri)
         print "current url_xuanwutoday:" + url_xuanwutoday
+
         resp_xw = SENT_resquest(url_xuanwutoday, headers_dict, timeout_sec, data_urlencoded_str,
                                 method, debugmode)
 
@@ -672,8 +717,6 @@ def crawl_xuanwu(riqi):
         if ('Xuanwu' not in response_xw):
             return "0"
 
-        # 过滤掉js 即可避免进入垃圾箱
-
         # 直接匹配
         regex = r"""<span class="category">.+rel"""
 
@@ -692,9 +735,7 @@ def crawl_xuanwu(riqi):
 
             alltext += (item + "\n\n")
 
-            # for groupNum in range(0, len(match.groups())):
-            #     groupNum = groupNum + 1
-
+        alltext = url_xuanwutoday + "\n\n" + alltext
         return alltext
 
     except Exception as e:
@@ -702,11 +743,7 @@ def crawl_xuanwu(riqi):
         return "error"
 
 
-def crawl_daily_all():  # 一小时执行一次
-    # if daily_xuanwu != 0:
-    #     crawl_xuanwu()
-    #     global daily_xuanwu
-    #     daily_xuanwu = 1
+def crawl_daily_all():  # 360cert + xuanwulab
     global today_has_send_360cert
     global today_has_send_xuanwulab
 
@@ -732,9 +769,7 @@ def crawl_daily_all():  # 一小时执行一次
         else:
             print str(current_now)
             print "[360cert] will send"
-            send_mail_sohu(Recipient_list, '[*]360cert ' + current_riqi, temp360resp, type='plain')
-
-            # 更改发送状态
+            send_mail_A(Recipient_list, '[*]360cert ' + current_riqi, temp360resp, type='plain')
             today_has_send_360cert = 1
     else:
         print "[360cert] 今天已发过了"
@@ -752,47 +787,31 @@ def crawl_daily_all():  # 一小时执行一次
             print str(current_now)
 
             print "[xuanwulab] will send"
-            send_mail_sohu(Recipient_list, '[*]xuanwulab ' + current_riqi, tempxuanwu, type='plain')
-
-            # 更改发送状态
+            # send_mail_163_to_all('[*]360cert daily',,temp360resp, type='plain')
+            send_mail_A(Recipient_list, '[*]xuanwulab ' + current_riqi, tempxuanwu, type='plain')
             today_has_send_xuanwulab = 1
 
     else:
         print "[xuanwulab] 今天已发过了"
 
+    sys.stdout.flush()  # 实时输出日志 适用于 python x.py > x.log的实时输出
 
 # 爬daily----------------------------------^️
-
 # 全局变量
-schedule.every(10).minutes.do(crawl_all_new)  # 方法名后面不带括号，就可以执行成功。
-schedule.every(1).hour.do(crawl_daily_all)  # 方法名后面不带括号，就可以执行成功。
+schedule.every(8).minutes.do(crawl_all_new)  # 方法名后面不带括号，就可以执行成功。
 
 # 收件人
-Recipient_list = ['123456@qq.com', 'aaaaa@163.com']
+Recipient_list = ['1111@126.com','2222@163.com']
 
 if __name__ == '__main__':
     print 'start_time程序启动时间:' + str(start_time)
 
     global_crawl_times += 1  # 已经爬行次数
-    # print '[start]-> global_crawl_times=' + str(global_crawl_times)
-    crawl_daily_all()
     crawl_all_new()
+    sys.stdout.flush()
 
     while True:
         schedule.run_pending()
         time.sleep(30)
         print("alive..")
-
-
-'''
-https://www.sec-wiki.com
-
-https://www.exploit-db.com/
-https://www.exploit-db.com/remote/
-https://www.exploit-db.com/webapps/
-https://www.exploit-db.com/local/
-
-http://www.cnvd.org.cn/flaw/list.htm
-https://www.exploitalert.com/search-results.html
-
-'''
+        sys.stdout.flush()

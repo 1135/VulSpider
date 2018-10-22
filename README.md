@@ -2,6 +2,12 @@
 
 本程序在后台持续运行，每10分钟爬取一次"最新漏洞"及"每日简报"，如果对比后发现有新内容(最新url链接及其标题），则主动通知给若干安全人员。
 
+### 实现效果
+![maillist](http://wx2.sinaimg.cn/mw690/0060lm7Tly1fwh39z66wvj30tz1fegr9.jpg)
+![one](http://wx4.sinaimg.cn/mw690/0060lm7Tly1fwh3lrd8itj30tz1fc0ut.jpg)
+![xuanwu](http://wx2.sinaimg.cn/mw690/0060lm7Tly1fwh3is1neoj30u01f4q9c.jpg)
+![360](http://wx1.sinaimg.cn/mw690/0060lm7Tly1fwh3jhgyf1j30u01esjvq.jpg)
+
 ### 实现介绍
 
 * 需求背景：爬取若干固定单页面，提取关键信息，实际测试未触发反爬机制。

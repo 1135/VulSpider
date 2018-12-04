@@ -393,7 +393,7 @@ def crawl_all_new():
 
     print '-' * 20 + 'exploit-db.com/remote/'
 
-    current_dict = crawl_expdb('https://www.exploit-db.com/remote/')  # 本次exploit-db.com/remote抓取结果
+    current_dict = crawl_expdb('https://old.exploit-db.com/remote/')  # 本次exploit-db.com/remote抓取结果
 
     global dict_expdb_remote  # exploit-db.com/remote中的新的 全局变量
 
@@ -422,7 +422,7 @@ def crawl_all_new():
 
     print '-' * 20 + 'exploit-db.com/webapps/'
 
-    current_dict = crawl_expdb('https://www.exploit-db.com/webapps/')
+    current_dict = crawl_expdb('https://old.exploit-db.com/webapps/')
 
     global dict_expdb_webapps  # exploit-db.com/remote中的新的 全局变量
 
@@ -451,7 +451,7 @@ def crawl_all_new():
 
     print '-' * 20 + 'exploit-db.com/local/'
 
-    current_dict = crawl_expdb('https://www.exploit-db.com/local/')
+    current_dict = crawl_expdb('https://old.exploit-db.com/local/')
 
     global dict_expdb_local  # exploit-db.com/remote中的新的 全局变量
 

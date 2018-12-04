@@ -49,9 +49,9 @@ python VulSpider.py > Vul.log
 
 * exploit-db.com
 ```
-https://www.exploit-db.com/remote/
-https://www.exploit-db.com/webapps/
-https://www.exploit-db.com/local/
+https://old.exploit-db.com/remote/
+https://old.exploit-db.com/webapps/
+https://old.exploit-db.com/local/
 ```
 
 * CNVD

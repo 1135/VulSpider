@@ -683,10 +683,11 @@ def crawl_xuanwu(riqi):
         nian = riqi.split('-')[0]
         if len(riqi.split('-')[1]) == 1:
             yue = "0" + riqi.split('-')[1]
+        else:
+            yue =riqi.split('-')[1]
         if len(riqi.split('-')[2]) == 1:
             ri = "0" + riqi.split('-')[2]
         else:
-            yue =riqi.split('-')[1]
             ri = riqi.split('-')[2]
 
         url_xuanwutoday = 'https://xuanwulab.github.io/cn/secnews/{}/{}/{}/index.html'.format(nian, yue, ri)

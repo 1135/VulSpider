@@ -3,8 +3,7 @@
 本程序在后台持续运行，每10分钟爬取一次"最新漏洞"及"每日简报"，如果对比后发现有新内容(最新url链接及其标题），则主动通知给若干安全人员。
 
 ### 实现效果
-![all](https://images2.imgbox.com/c4/de/EhWf7z3R_o.png)
-
+![all](https://github.com/1135/notes/blob/master/imgs/vulspider.png?raw=true)
 
 ### 实现介绍
 

@@ -34,8 +34,9 @@
 * 不建议使用腾讯云部署(实测，无法与邮件服务器连接 如smtp.sohu.com等)
 
 ### Usage
+
 ```
-#python2
+#python2 安装依赖库
 pip install schedule
 
 # 运行 可选择保存程序日志

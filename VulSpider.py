@@ -643,7 +643,7 @@ def crawl_360cert(riqi):
         print "360cert len response:" + str(len(resp_text))
         if len(resp_text) < 2800:#通常2712
             return "0"  # 单日信息还未出来
-        if ('Information' not in resp_text) and ('Vulnerability' not in resp_text):
+        if ('report' not in resp_text):
             return "0"
 
         # 直接匹配

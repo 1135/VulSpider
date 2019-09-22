@@ -2,7 +2,12 @@
 
 本程序在后台持续运行，每10分钟爬取一次"最新漏洞"及"每日简报"，如果对比后发现有新内容(最新url链接及其标题），则主动通知给若干安全人员。
 
+* 2019.9.22说明:
+  * 已知部分目标站发生变更，代码有待更新
+  * 代码质量确实有待提高
+
 ### 实现效果
+
 ![all](https://github.com/1135/notes/blob/master/imgs/vulspider.png?raw=true)
 
 ### 实现介绍
@@ -45,7 +50,7 @@ python VulSpider.py > Vul.log
 
 ### "最新漏洞"——采集地址
 
-* xz.aliyun.com
+* ~~xz.aliyun.com~~
 
 * exploit-db.com
 ```
@@ -71,12 +76,12 @@ https://www.sec-wiki.com
 
 ### "每日简报"——采集地址
 
-* Xuanwulab
-```
-https://xuanwulab.github.io/cn/secnews/2018/09/03/index.html
-```
-
 * cert.360.cn
 ```
 https://cert.360.cn/daily?date=2018-09-03
+```
+
+* ~~Xuanwulab~~ 官方2019.2停止使用该方式发布信息
+```
+https://xuanwulab.github.io/cn/secnews/2018/09/03/index.html
 ```
